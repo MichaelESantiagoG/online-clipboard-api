@@ -7,12 +7,17 @@ export class Clip {
         this.MAX_CLIPS_PER_HOUR = 10;
     }
 
-    async checkRateLimit(ip_address) {
+    async checkRateLimit(user_id) {
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+        // const stmt = this.db.prepare(
+        //     "SELECT COUNT(*) as count FROM clip WHERE created_by_ip = ? AND created_at > ?"
+        // );
+        // const { results } = await stmt.bind(ip_address, oneHourAgo).all();
+
         const stmt = this.db.prepare(
-            "SELECT COUNT(*) as count FROM clip WHERE created_by_ip = ? AND created_at > ?"
+            "SELECT COUNT(*) as count FROM clip WHERE user_id = ?"
         );
-        const { results } = await stmt.bind(ip_address, oneHourAgo).all();
+        const { results } = await stmt.bind(user_id, oneHourAgo).all();
         return results[0].count >= this.MAX_CLIPS_PER_HOUR;
     }
 
@@ -23,7 +28,10 @@ export class Clip {
         }
 
         // Check rate limit
-        if (await this.checkRateLimit(ip_address)) {
+        // if (await this.checkRateLimit(ip_address)) {
+        //     throw new Error("Rate limit exceeded. Please try again later.");
+        // }
+        if (await this.checkRateLimit(user_id)) {
             throw new Error("Rate limit exceeded. Please try again later.");
         }
 
@@ -80,7 +88,7 @@ export async function handleClipEndpoint(request, database) {
     const clip = new Clip(database);
     const url = new URL(request.url);
     const pathname = url.pathname;
-    const clip_id = url.searchParams.get("id");
+    const clip_id = url.searchParams.get("clip_id");
     const user_id = url.searchParams.get("user_id");
     const ip_address = request.headers.get("CF-Connecting-IP");
 
