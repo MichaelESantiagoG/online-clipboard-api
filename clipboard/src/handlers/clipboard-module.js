@@ -47,7 +47,7 @@ export class Clip {
             user_id
         ).run();
 
-        return [clip_id, expiration];
+        return [clip_id, expiration.toISOString()];
     }
 
     async getClip(clip_id) {
@@ -93,9 +93,9 @@ export async function handleClipEndpoint(request, database) {
                     { status: 400, headers: corsHeaders }
                 );
             }
-            const newClipId = await clip.newClip(expiration, content, ip_address, user_id);
+            const newClip = await clip.newClip(expiration, content, ip_address, user_id);
             return new Response(
-                JSON.stringify({ clip_id: newClipId }),
+                JSON.stringify({ clip_id: newClip[0], exp_date: newClip[1] }),
                 { headers: corsHeaders }
             );
         } catch (error) {
@@ -120,7 +120,6 @@ export async function handleClipEndpoint(request, database) {
             { headers: corsHeaders }
         );
     }
-
     return new Response(
         JSON.stringify({ error: "Method not allowed" }),
         { status: 405, headers: corsHeaders }
