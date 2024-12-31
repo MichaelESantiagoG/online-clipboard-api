@@ -15,7 +15,7 @@ export class Clip {
         // const { results } = await stmt.bind(ip_address, oneHourAgo).all();
 
         const stmt = this.db.prepare(
-            "SELECT COUNT(*) as count FROM clip WHERE user_id = ?"
+            "SELECT COUNT(*) as count FROM clip WHERE user_id = ? AND created_at > ?"
         );
         const { results } = await stmt.bind(user_id, oneHourAgo).all();
         return results[0].count >= this.MAX_CLIPS_PER_HOUR;
