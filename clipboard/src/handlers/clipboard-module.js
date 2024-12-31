@@ -38,6 +38,19 @@ export class Clip {
         const clip_id = Math.random().toString(36).substring(2, 8);
         const now = new Date();
         const expiration = new Date(now.getTime() + exp * 60 * 60 * 1000);
+        // Function to format the date
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        const formattedNow = formatDate(now);
+        const formattedExpiration = formatDate(expiration);
 
         const stmt = this.db.prepare(`
             INSERT INTO clip (
@@ -49,8 +62,8 @@ export class Clip {
         await stmt.bind(
             clip_id,
             content,
-            now.toISOString(),
-            expiration.toISOString(),
+            formattedNow,
+            formattedExpiration,
             ip_address,
             user_id
         ).run();
