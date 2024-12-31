@@ -47,7 +47,7 @@ export class Clip {
             user_id
         ).run();
 
-        return clip_id;
+        return [clip_id, expiration];
     }
 
     async getClip(clip_id) {
